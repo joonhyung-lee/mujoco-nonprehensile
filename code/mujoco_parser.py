@@ -867,12 +867,15 @@ class MuJoCoParserClass(object):
         depth_img = scaled_depth_img.squeeze()
         return rgb_img,depth_img
     
-    def get_pcd_from_depth_img(self,depth_img,fovy=45):
+    def get_pcd_from_depth_img(self,depth_img,T_cam,fovy=45):
         """
             Get point cloud data from depth image
         """
         # Get camera pose
-        T_viewer = self.get_T_viewer(fovy=fovy)
+        if T_cam is not None:
+            T_viewer = T_cam
+        else:
+            T_viewer = self.get_T_viewer(fovy=fovy)
 
         # Camera intrinsic
         img_height = depth_img.shape[0]
@@ -893,7 +896,7 @@ class MuJoCoParserClass(object):
         xyz_world = np.transpose(xyz_world_transpose,(1,0)) # [N x 3]
         return xyz_world,xyz_img
     
-    def get_egocentric_rgb_depth_pcd(self,p_ego=None,p_trgt=None,rsz_rate=50,fovy=45,
+    def get_egocentric_rgb_depth_pcd(self,p_ego=None,p_trgt=None,T_cam=None,rsz_rate=50,fovy=45,
                                      BACKUP_AND_RESTORE_VIEW=False):
         """
             Get egocentric 1) RGB image, 2) Depth image, 3) Point Cloud Data
@@ -907,7 +910,7 @@ class MuJoCoParserClass(object):
                 camera_pos=p_ego,target_pos=p_trgt,up_vector=np.array([0,0,1]))
             self.update_viewer(azimuth=cam_azimuth,distance=cam_distance,
                                elevation=cam_elevation,lookat=cam_lookat)
-        
+
         # Grab RGB and depth image
         rgb_img,depth_img = self.grab_rgb_depth_img() # get rgb and depth images
 
@@ -916,7 +919,7 @@ class MuJoCoParserClass(object):
         depth_img_rsz = cv2.resize(depth_img,(w_rsz,h_rsz),interpolation=cv2.INTER_NEAREST)
 
         # Get PCD
-        pcd,xyz_img = self.get_pcd_from_depth_img(depth_img_rsz,fovy=fovy) # [N x 3]
+        pcd,xyz_img = self.get_pcd_from_depth_img(depth_img_rsz,T_cam,fovy=fovy) # [N x 3]
 
         if BACKUP_AND_RESTORE_VIEW:
             # Restore camera information

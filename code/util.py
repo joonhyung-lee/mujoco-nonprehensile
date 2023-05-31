@@ -267,6 +267,7 @@ def meters2xyz(depth_img,cam_matrix):
     
     # Order of y_ e is reversed !
     xyz_img = np.stack([z_e, -x_e, -y_e], axis=-1) # [H x W x 3] 
+    # xyz_img = np.stack([-y_e, -x_e, z_e], axis=-1) # [H x W x 3] 
     return xyz_img # [H x W x 3]
 
 def compute_view_params(camera_pos,target_pos,up_vector=np.array([0,0,1])):
