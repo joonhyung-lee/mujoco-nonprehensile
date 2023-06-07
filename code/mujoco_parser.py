@@ -915,8 +915,11 @@ class MuJoCoParserClass(object):
         rgb_img,depth_img = self.grab_rgb_depth_img() # get rgb and depth images
 
         # Resize
-        h_rsz,w_rsz = depth_img.shape[0]//rsz_rate,depth_img.shape[1]//rsz_rate
-        depth_img_rsz = cv2.resize(depth_img,(w_rsz,h_rsz),interpolation=cv2.INTER_NEAREST)
+        if rsz_rate is not None:
+            h_rsz,w_rsz = depth_img.shape[0]//rsz_rate,depth_img.shape[1]//rsz_rate
+            depth_img_rsz = cv2.resize(depth_img,(w_rsz,h_rsz),interpolation=cv2.INTER_NEAREST)
+        else:
+            depth_img_rsz = depth_img
 
         # Get PCD
         pcd,xyz_img = self.get_pcd_from_depth_img(depth_img_rsz,T_cam,fovy=fovy) # [N x 3]
